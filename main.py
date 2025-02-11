@@ -1,156 +1,304 @@
-import logging
-import asyncio
-import json
 import requests
+import time
+import schedule
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-from telegram import Update
-from telegram.ext import Application, CommandHandler, CallbackContext
-import os
-from flask import Flask
-from threading import Thread
 
-
-# Replace with your bot token
-TELEGRAM_BOT_TOKEN = "7768583690:AAH9MRxkGj2r5lFMxwbml-c1yLycy_--sWI"
-
-# File to store tokens
-TOKEN_FILE = "tokens.json"
-
-# Flask app setup
-app = Flask(__name__)
-
-# Enable logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-# Configuration Section for Yapster
-BASE_URL = "https://hub.kaito.ai/api/v1/yapper/emerging-leaderboard?range=30D"
+# ====================
+# Configuration Section
+# ====================
+BASE_URL = "https://hub.kaito.ai/api/v1/gateway/ai"
 HEADERS = {
     "accept": "application/json, text/plain, */*",
-    "authorization": "",
+    "authorization": "Bearer YOUR_BEARER_TOKEN",  # Replace with your actual token
     "content-type": "application/json",
     "origin": "https://yaps.kaito.ai",
     "referer": "https://yaps.kaito.ai/",
     "user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36",
-    "privy-id-token": ""
 }
+
+PAYLOADS = [
+    {
+        "topic_id": "0G",
+        "url_params": "?duration=30d&topic_id=0G&top_n=100",
+        "payload": {
+            "path": "/api/yapper/public_kol_mindshare_leaderboard",
+            "method": "GET",
+            "params": {"duration": "30d", "topic_id": "0G", "top_n": 100},
+            "body": {}
+        }
+    },
+    {
+        "topic_id": "Pre-TGE",
+        "url_params": "?duration=30d",
+        "payload": {
+            "path": "/api/yapper/public_kol_mindshare_pre_tge",
+            "method": "GET",
+            "params": {"duration": "30d"},
+            "body": {}
+        }
+    },
+    {
+        "topic_id": "vcarena",
+        "url_params": "?duration=30d&topic_id=vcarena&top_n=100",
+        "payload": {
+            "path": "/api/yapper/public_kol_mindshare_leaderboard",
+            "method": "GET",
+            "params": {"duration": "30d", "topic_id": "vcarena", "top_n": 100},
+            "body": {}
+        }
+    },
+    {
+        "topic_id": "CORN",
+        "url_params": "?duration=30d&topic_id=CORN&top_n=100",
+        "payload": {
+            "path": "/api/yapper/public_kol_mindshare_leaderboard",
+            "method": "GET",
+            "params": {"duration": "30d", "topic_id": "CORN", "top_n": 100},
+            "body": {}
+        }
+    },
+     {
+        "topic_id": "GeneralCryptoAI",
+        "url_params": "?duration=30d&topic_id=GeneralCryptoAI&top_n=100",
+        "payload": {
+            "path": "/api/yapper/public_kol_mindshare_leaderboard",
+            "method": "GET",
+            "params": {"duration": "30d", "topic_id": "GeneralCryptoAI", "top_n": 100},
+            "body": {}
+        }
+    },
+    {
+        "topic_id": "ECLIPSE",
+        "url_params": "?duration=30d&topic_id=ECLIPSE&top_n=100",
+        "payload": {
+            "path": "/api/yapper/public_kol_mindshare_leaderboard",
+            "method": "GET",
+            "params": {"duration": "30d", "topic_id": "ECLIPSE", "top_n": 100},
+            "body": {}
+        }
+    },
+    {
+        "topic_id": "INITIA",
+        "url_params": "?duration=30d&topic_id=INITIA&top_n=100",
+        "payload": {
+            "path": "/api/yapper/public_kol_mindshare_leaderboard",
+            "method": "GET",
+            "params": {"duration": "30d", "topic_id": "INITIA", "top_n": 100},
+            "body": {}
+        }
+    },
+    {
+        "topic_id": "KAITO",
+        "url_params": "?duration=30d&topic_id=KAITO&top_n=100",
+        "payload": {
+            "path": "/api/yapper/public_kol_mindshare_leaderboard",
+            "method": "GET",
+            "params": {"duration": "30d", "topic_id": "KAITO", "top_n": 100},
+            "body": {}
+        }
+    },
+     {
+        "topic_id": "MONAD",
+        "url_params": "?duration=30d&topic_id=MONAD&top_n=100",
+        "payload": {
+            "path": "/api/yapper/public_kol_mindshare_leaderboard",
+            "method": "GET",
+            "params": {"duration": "30d", "topic_id": "MONAD", "top_n": 100},
+            "body": {}
+        }
+    },
+    {
+        "topic_id": "PARADEX",
+        "url_params": "?duration=30d&topic_id=PARADEX&top_n=100",
+        "payload": {
+            "path": "/api/yapper/public_kol_mindshare_leaderboard",
+            "method": "GET",
+            "params": {"duration": "30d", "topic_id": "PARADEX", "top_n": 100},
+            "body": {}
+        }
+    },
+    {
+        "topic_id": "QUAI",
+        "url_params": "?duration=30d&topic_id=QUAI&top_n=100",
+        "payload": {
+            "path": "/api/yapper/public_kol_mindshare_leaderboard",
+            "method": "GET",
+            "params": {"duration": "30d", "topic_id": "QUAI", "top_n": 100},
+            "body": {}
+        }
+    },
+]
+
+
 
 SCOPE = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 CREDENTIALS_FILE = "kaito-sheet-208be79c4b81.json"  # Replace with your JSON key file name
 GOOGLE_SHEET_NAME = "KAITO_Data"  # Replace with your Google Sheet name
 
-# Telegram Bot Functions
-async def start(update: Update, context: CallbackContext) -> None:
-    await update.message.reply_text('Hi! Use /updateToken <authorization_token> <privy_id_token> to update tokens.')
+# ====================
+# Helper Functions
+# ====================
+def fetch_data(url, payload, topic_id, max_retries=3, retry_delay=2):
+    """Fetch data from the API for a specific topic with retry logic."""
+    print(f"Processing topic: {topic_id}")
+    retries = 0
+    while retries <= max_retries:
+        try:
+            response = requests.post(url, headers=HEADERS, json=payload)
+            if response.status_code == 200:
+                try:
+                    data = response.json()
+                    return data
+                except ValueError:
+                    print(f"Failed to parse JSON for topic {topic_id}.")
+                    return {"error": f"Failed to parse JSON for topic {topic_id}", "status_code": response.status_code}
+            else:
+                print(f"Failed to retrieve data for topic {topic_id}: {response.status_code}")
+                return {"error": f"Failed to retrieve data for topic {topic_id}", "status_code": response.status_code, "response": response.text}
+        except Exception as e:
+            print(f"Error fetching data for topic {topic_id}: {e}")
+            if retries < max_retries:
+                print(f"Retrying in {retry_delay} seconds... (Attempt {retries + 1}/{max_retries})")
+                time.sleep(retry_delay)
+                retries += 1
+            else:
+                print(f"Max retries reached for topic {topic_id}. Request Failed: {e}")
+                return {"error": f"Request Failed for topic {topic_id}: {e}"}
+    return {"error": f"Request failed after {max_retries} retries"}
 
-async def update_token(update: Update, context: CallbackContext) -> None:
-    if len(context.args) != 2:
-        await update.message.reply_text("Usage: /updateToken <authorization_token> <privy_id_token>")
-        return
+def extract_user_data(data):
+    """Extract required fields from the API response."""
+    filtered_users = []
+    for user in data:
+        filtered_user = {
+            "rank": user.get("rank", "N/A"),
+            "name": user.get("name", "N/A"),
+            "username": user.get("username", "N/A"),
+            "twitter_user_url": user.get("twitter_user_url", "N/A") or f"https://x.com/{user.get('username', 'N/A')}"
+        }
+        filtered_users.append(filtered_user)
+    return filtered_users
 
-    authorization_token, privy_id_token = context.args
-    tokens = {
-        "authorization": authorization_token,
-        "privy-id": privy_id_token
-    }
-    with open(TOKEN_FILE, "w") as file:
-        json.dump(tokens, file, indent=4)
-    HEADERS["authorization"] = authorization_token
-    HEADERS["privy-id-token"] = privy_id_token
+def update_worksheet(worksheet, rows, new_entries):
+    """Update the worksheet with new data and highlight new entries."""
+    # Clear the worksheet and write updated data
+    worksheet.clear()
+    worksheet.insert_rows(rows)
+    # Highlight new entries in batches
+    if new_entries:
+        print(f"Highlighting {len(new_entries)} new entries...")
+        highlight_new_entries(worksheet, new_entries)
 
-    await update.message.reply_text("Tokens updated successfully!\nFetching data from Yapster...")
-    # Fetch and update after updating tokens
-    await fetch_and_update_data(update)
+def highlight_new_entries(worksheet, new_entries):
+    """Highlight new entries in the worksheet in batches."""
+    all_values = worksheet.get_all_values()
+    ranges_to_format = []
+    for idx, row in enumerate(all_values[1:], start=2):  # Skip header row
+        if row[2] in new_entries:  # Check if the username is in new_entries
+            ranges_to_format.append(f"A{idx}:E{idx}")
+    # Batch format in chunks of 10 rows
+    batch_size = 10
+    for i in range(0, len(ranges_to_format), batch_size):
+        batch_ranges = ranges_to_format[i:i + batch_size]
+        print(f"Highlighting rows {i + 1} to {i + len(batch_ranges)}...")
+        try:
+            worksheet.batch_format([
+                {
+                    "range": range_str,
+                    "format": {
+                        "backgroundColor": {"red": 0.92, "green": 0.98, "blue": 0.85}
+                    }
+                }
+                for range_str in batch_ranges
+            ])
+        except gspread.exceptions.APIError as e:
+            if "Quota exceeded" in str(e):
+                print("Rate limit hit. Retrying after a delay...")
+                time.sleep(5)  # Wait before retrying
+                worksheet.batch_format([
+                    {
+                        "range": range_str,
+                        "format": {
+                            "backgroundColor": {"red": 0.92, "green": 0.98, "blue": 0.85}
+                        }
+                    }
+                    for range_str in batch_ranges
+                ])
+            else:
+                raise
 
-async def fetch_and_update_data(update: Update):
-    print("Fetching data...")
-    try:
-        response = requests.get(BASE_URL, headers=HEADERS)
-        if response.status_code == 200:
-            try:
-                data = response.json()
-                items = data.get("items", [])  # Fetch all available items without limitation
-                if items:
-                    logger.info(f"Successfully fetched {len(items)} items from Yapster.")
-                    update_google_sheet(items)
-                    await update.message.reply_text(f"Successfully updated Google Sheet with {len(items)} records.")
-                else:
-                    logger.warning("No data received from Yapster API.")
-                    await update.message.reply_text("No data received from Yapster API.")
-            except ValueError:
-                logger.error("Failed to parse response as JSON.")
-                logger.error(response.text)
-                await update.message.reply_text("Failed to parse response from Yapster.")
+# ====================
+# Main Functions
+# ====================
+def fetch_and_update_data():
+    """Fetch data for all topics and update Google Sheets."""
+    print("Fetching and updating data...")
+    combined_data = {}
+    # Fetch data for each topic
+    for payload_info in PAYLOADS:
+        topic_id = payload_info["topic_id"]
+        url = f"{BASE_URL}{payload_info['url_params']}"
+        payload = payload_info["payload"]
+        data = fetch_data(url, payload, topic_id)
+        if isinstance(data, list):  # Ensure data is a list before processing
+            combined_data[topic_id] = extract_user_data(data)
+        elif "error" in data:
+            print(f"Error for topic {topic_id}: {data['error']}")
+            combined_data[topic_id] = [{"error": data["error"]}]
         else:
-            logger.error(f"Failed to retrieve data: {response.status_code}")
-            logger.error(response.text)
-            await update.message.reply_text(f"Failed to retrieve data from Yapster. Status code: {response.status_code}")
-    except Exception as e:
-        logger.error(f"Error fetching data: {e}")
-        await update.message.reply_text(f"Error fetching data: {e}")
+            combined_data[topic_id] = [{"error": "Unknown error occurred"}]
+        time.sleep(2)  # Optional: Add a small delay between requests
+    # Update Google Sheets
+    update_google_sheets(combined_data)
 
-def update_google_sheet(data):
+def update_google_sheets(data):
+    """Update Google Sheets with the fetched data."""
     credentials = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_FILE, SCOPE)
     client = gspread.authorize(credentials)
-    try:
-        worksheet = client.open(GOOGLE_SHEET_NAME).sheet1
-    except gspread.WorksheetNotFound:
-        worksheet = client.open(GOOGLE_SHEET_NAME).add_worksheet(title="Emerging_Market", rows="1000", cols="20")
+    for topic_id, users in data.items():
+        try:
+            # Try to get the worksheet for the topic
+            worksheet = client.open(GOOGLE_SHEET_NAME).worksheet(topic_id)
+        except gspread.WorksheetNotFound:
+            # If the worksheet doesn't exist, create it
+            worksheet = client.open(GOOGLE_SHEET_NAME).add_worksheet(title=topic_id, rows="1000", cols="20")
 
-    # Fetch existing usernames to detect new entries
-    existing_usernames = set(row[2] for row in worksheet.get_all_values()[1:] if len(row) > 2)  # Skip header row
-    new_entries = []
+        # Fetch existing usernames to detect new entries
+        all_values = worksheet.get_all_values()
+        existing_usernames = set(row[2] for row in all_values[1:]) if len(all_values) > 1 else set()  # Skip header row
 
-    # Prepare data for the worksheet
-    rows = [["Rank", "Name", "Username", "Twitter URL", "New Entry"]]
-    for item in data:
-        rank = item.get("rank", "N/A")
-        name = item.get("user_name", "N/A")
-        username = item.get("twitter_handle", "N/A")
-        twitter_url = f"https://x.com/{username}" if username != "N/A" else "N/A"
-        is_new = username not in existing_usernames if username != "N/A" else False
+        # Prepare data for the worksheet
+        rows = [["Rank", "Name", "Username", "Twitter URL", "New Entry"]]
+        new_entries = []
+        for user in users:
+            if "error" in user:
+                # If there was an error, log it in the first row
+                rows.append([f"Error: {user['error']}"])
+                break  # No need to process further for this topic
+            else:
+                # Safely get the username, or default to "N/A" if missing
+                username = user.get("username", "N/A")
+                is_new = username not in existing_usernames if username != "N/A" else False
+                if is_new:
+                    new_entries.append(username)
+                # Use default values for missing keys to prevent errors
+                rank = user.get("rank", "N/A")
+                name = user.get("name", "N/A")
+                twitter_url = user.get("twitter_user_url", "N/A")
+                rows.append([rank, name, username, twitter_url, "Yes" if is_new else "No"])
 
-        if is_new:
-            new_entries.append(username)
-        rows.append([rank, name, username, twitter_url, "Yes" if is_new else "No"])
-
-    # Update the worksheet
-    if rows:
-        worksheet.clear()
-        worksheet.insert_rows(rows)
-        logger.info(f"Inserted {len(rows) - 1} rows into Google Sheet.")
-        if new_entries:
-            logger.info(f"New entries detected: {new_entries}")
-
-def start_bot():
-    load_tokens()
-    application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("updateToken", update_token))
-
-    # Run the bot on a separate thread
-    bot_thread = Thread(target=asyncio.run, args=(application.run_polling(),))
-    bot_thread.start()
-
-    # Start the Flask server to bind to a port for Render
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-
-def load_tokens():
-    if os.path.exists(TOKEN_FILE):
-        with open(TOKEN_FILE, "r") as file:
-            tokens = json.load(file)
-            HEADERS["authorization"] = tokens.get("authorization", "")
-            HEADERS["privy-id-token"] = tokens.get("privy-id", "")
-
-@app.route("/")
-def index():
-    return "Bot is running!"
+        # Update the worksheet
+        update_worksheet(worksheet, rows, new_entries)        
+def main():
+    """Main function to run the script."""
+    # Initial data fetch
+    fetch_and_update_data()
+    # Schedule the script to run every 24 hours
+    schedule.every(24).hours.do(fetch_and_update_data)
+    while True:
+        schedule.run_pending()
+        time.sleep(8)
 
 if __name__ == "__main__":
-    try:
-        start_bot()
-        # Keep the Flask server running
-        app.run(host="0.0.0.0", port=5000)
-    except RuntimeError as e:
-        logger.error(f"RuntimeError occurred: {e}")
+    main()
