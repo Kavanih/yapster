@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "kaito-sheet",
+  "private_key_id": "208be79c4b81df844a5cfbc9f25b53df2f51ae7c",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDA/S2Xk4kkNzbe\nYtN7IkDSaBQz0VluIHuxCNAKujsW2MOFpi3jlo9IMV1UxqEqXxX77mHJJUBeM9o8\nIXTcZmh/BiXCPXfyXc/ki5IxTKBOQROBSmf+gLZhp5jhbIW225u+H8Ot5Nr7Nlho\nIO2aaLhA5dPh8dgdx0O4RMvU79hMRBmi4uTRtfHts4hH0AlEdxoNwY/8X86Ku6E3\nDZoC2Mss2l+GY44PdmxLsU9N1CVCTIBZSbAVRezAwv5nD5Ug3Uh+p9eLSTtyxpAb\nyXCwEFtRKsmYK2b6uYlRJRT+K9+CEbVI8pNGPQHlXHgyA98Kx225XBGcunwwL5DV\nZ7X8wtffAgMBAAECggEAIyBR4pNrdEiKd5rERFa9Nq7T8oSJwwYtjVD90N4JsERe\n/h37nz+Br9GwW6RVpEkvTq4aZUqe9yZ389bhFtaa8XfUepDGmrohg0c2IjwAt42X\nt8IrwIJ777VaGbmvctNw+v98FdQgWXYQTE+l/6NM2h8a3DaxL+ZbeJgpA4ZuN58i\nnKDOfjK4A9XccJOgPfBWZnP9fdyovx56AZGVNp5wRHfyflyQwV1AU0p8RL6GV9yJ\nB0B5u3eXLbWn7DZ4BF4oInysug/HClFcI52v4kMPl0XfH+vsx4ygdgQQ71dio49Y\nzO2Km7OPukClWCP5yO0TQToC4tROMbQ71h85wZM4MQKBgQDkEej3Eo9rkMacGDl9\nH6TBeQdsoER/eK2s1z4AsEELsOJYP02f6sU5ZQSVIHVZ1Gsq4cwtbJV1ilfzoy9h\nJD2tKTRmUNQWnERmc+xG/v/BZzK7pB5w3SQZxsyOQiWsQosH1Bfekp1lXeSFf3gE\nyb1SjaxazCAKDQjQhgnYhCj5LwKBgQDYn3bfjMxGof2EViGIuuiuC0J7e5DJAdM2\na48c1+KTLflnGyc/NuxfwQvqyuvjtEwKlRtN4xbM4ReIndERZ9RFw879wFJf4upI\nXgJHr05kJX4Pe0QRx5R4QCdhlkydZX3DcASpaGi3F2adtHXQQVfKtMOd8dp0EZDC\nCm6TRfQAUQKBgQCh4iyQIzZ1zV+MMI2tyKYzResFKYU1Tb1I78bsyi6BU951cQly\nNzwijxd/mnhxeJtQ5tD8dRRpR/dB0lSxCP5WSOcOsNS579WFO0c85Yc4Cj4yfj21\nMuKLAVb0qvL+oIT624rNyxe5ebnZIC9ahq/BRxpNoJIlUDcve9TFQJmstQKBgFbg\nvaAyq8q4NSDaGmDn9WG4ClXT3OGA5eCxipgazTgR/DCp5zenI23T0p+7+pc8PDMS\nUf0O0pogvHuCL9M3PR8txNpoQ6FJNIUJjwiI+nuXvdMfsNEgph8EO8cbrGaDyciU\nKIp44WZs8C7XrVh0nG0jykCSOvbKBLCN1oMiTxXBAoGBAKXLyRYWUycsmCidOY4o\nA/3shAIvY+4G8u2gJJvIZkZ8ps933l5CmtPNTRDqN0zs5uSZSRaSSMt8bcfOfGyK\njS81sePfohvxMEn41DyUvqYgHiE3etP2xUGIAV00j9/Mzv7npEARZgB6giJGSInf\nesnDVP1aVeOYtoJBjSpBVXQ0\n-----END PRIVATE KEY-----\n",
+  "client_email": "kaito-sheet@kaito-sheet.iam.gserviceaccount.com",
+  "client_id": "106403871595829017371",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/kaito-sheet%40kaito-sheet.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
