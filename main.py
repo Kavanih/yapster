@@ -7,14 +7,16 @@ from oauth2client.service_account import ServiceAccountCredentials
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
 import os
+from flask import Flask
 
 # Replace with your bot token
 TELEGRAM_BOT_TOKEN = "7768583690:AAH9MRxkGj2r5lFMxwbml-c1yLycy_--sWI"
 
-
-
 # File to store tokens
 TOKEN_FILE = "tokens.json"
+
+# Flask app setup
+app = Flask(__name__)
 
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -135,8 +137,14 @@ def load_tokens():
             HEADERS["authorization"] = tokens.get("authorization", "")
             HEADERS["privy-id-token"] = tokens.get("privy-id", "")
 
+@app.route("/")
+def index():
+    return "Bot is running!"
+
 if __name__ == "__main__":
     try:
         start_bot()
+        # Keep the Flask server running
+        app.run(host="0.0.0.0", port=5000)
     except RuntimeError as e:
         logger.error(f"RuntimeError occurred: {e}")
