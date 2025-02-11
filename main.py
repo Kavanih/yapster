@@ -8,6 +8,8 @@ from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
 import os
 from flask import Flask
+from threading import Thread
+
 
 # Replace with your bot token
 TELEGRAM_BOT_TOKEN = "7768583690:AAH9MRxkGj2r5lFMxwbml-c1yLycy_--sWI"
@@ -127,8 +129,12 @@ def start_bot():
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("updateToken", update_token))
 
-    # Start bot in a separate thread
-    asyncio.run(application.run_polling())
+    # Run the bot on a separate thread
+    bot_thread = Thread(target=asyncio.run, args=(application.run_polling(),))
+    bot_thread.start()
+
+    # Start the Flask server to bind to a port for Render
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 
 def load_tokens():
     if os.path.exists(TOKEN_FILE):
