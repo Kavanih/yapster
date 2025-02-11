@@ -1,7 +1,7 @@
-python-telegram-bot
+Flask
 requests
+schedule
 gspread
 oauth2client
-Flask
-
-
+python-telegram-bot
+gunicorn
